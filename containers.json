@@ -1,0 +1,8 @@
+{
+    "jasonlam604-website": {
+        "image": ":jasonlam604-website.jasonlam604-website.3",
+        "ports": {
+            "5000": "HTTP"
+        }
+    }
+}
