@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block description %}
+    <h2>What was used to build this site</h2>
+    <br>
+    <h5>Python, Flask, Docker & Docker Compose, HTML, BootStrap, AWS Lightsail</h5>
+{% endblock %}
+
+{% block content %}
+            <div class="section section-presentation">
+                <div class="container">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="description">
+
+                                <h4 class="header-text">Overview</h4>
+                                <p>Personal website has been stale for a while, needed refresh.  For the fun it decided
+                                   to use Python, Flask, Docker,  Bootstrap and a pre-made template and AWS Lightsail for
+                                   hosting. Caveat, I'm on Mac, most of the instructions should be OS agnostic.
+                                <p>
+
+                                <h4 class="header-text">Prerequisite</h4>
+                                <p>
+                                    <ul>
+                                        <li><a href="https://www.python.org/" target="_blank">Python</a> with <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank">Flask</a> and Flask Template Inheritance</li>
+                                        <li><a href="https://aws.amazon.com/" target="_blank">AWS Account</li>
+                                        <li><a href="https://www.docker.com/" target="_blank">Docker</a></li>
+                                        <li><a href="https://aws.amazon.com/cli/" target="_blank">AWS Command Line Interface</a></li>
+                                        <li><a href="https://lightsail.aws.amazon.com/ls/docs/en_us/articles/amazon-lightsail-install-software" target="_blank">Lightsail Control</a></li>
+                                    </ul>
+                                <p>
+
+                                <h4 class="header-text">Create Website</h4>
+                                <p>This is beyond the scope of this, all you really need to do just see something is create
+                                    your typical <a href="https://pythonbasics.org/flask-tutorial-hello-world/#Hello-World" target="_blank">Hello World</a>
+                                </p>
+
+                                <h4 class="header-text">Create AWS Lightsail container</h4>
+                                <p>
+                                    Assuming you have AWS CLI installed and your Access Key ID and Secret set along with region, you might run into the region error
+                                    if just include the --region parameter and indicate the region of your choice.<br><br>
+
+                                    <code>aws lightsail create-container-service --service-name jasonlam604-website --power nano --scale 1 --region us-east-1</code>
+                                    <br><br>
+                                    You will then see a response similar to this one:
+                                    <pre>
+
+{
+    "containerService": {
+        "containerServiceName": "jasonlam604-website",
+        "arn": "arn:aws:lightsail:us-east-1:007085163428:ContainerService/ed8986a4-1623-4811-862a-7507e0f42a0c",
+        "createdAt": "2022-02-19T18:55:45-08:00",
+        "location": {
+            "availabilityZone": "all",
+            "regionName": "us-east-1"
+        },
+        "resourceType": "ContainerService",
+        "tags": [],
+        "power": "nano",
+        "powerId": "nano-1",
+        "state": "PENDING",
+        "scale": 1,
+        "isDisabled": false,
+        "principalArn": "",
+        "privateDomainName": "jasonlam604-website.service.local",
+        "url": "https://jasonlam604-website.m6lof1uganufc.us-east-1.cs.amazonlightsail.com/"
+}
+                                    </pre>
+                                    </p>
+                                <h4 class="header-text">Push Container</h4>
+                                <p>
+                                  Now push your docker image up
+
+                                  <br><br>
+                                  <code>aws lightsail push-container-image --region us-east-1 --service-name [name-of-your-service] --label [your-label] --image [docker-image-name]</code>
+
+                                  In AWS under lightsail you should soon see your image, noticed the version assuming this is your first image will have suffix of "1".  This is important
+                                  for when deciding which image to deploy.
+                                </p>
+
+                                <h4 class="header-text">Deploy Container</h4>
+                                <p>
+                                  There are 2 files you need to create prior to deploying, one of which is <strong>containers.json</strong> file, it will contain the following:
+                                  <pre>
+{
+    "jasonlam604-website": {
+        "image": ":jasonlam604-website.jasonlam604-website.1",
+        "ports": {
+            "5000": "HTTP"
+        }
+}
+                            </pre>
+                                Note of course you will need the change label to your label and the image name that matches the image name you assigned your docker container to.
+                                <br><br>
+                                The second file you need to add is <strong>public-endpoint.json</strong>, only required if you intend to expose the container externally in this case I am:
+                                <pre>
+{
+    "containerName": "jasonlam604-website",
+    "containerPort": 5000
+}
+                                </pre>
+                                Rename the containerName according to your container name.
+                                <br><br>
+                                Now execute the following, with your settings:
+                                <code>
+                                     aws lightsail create-container-service-deployment --region us-east-1 --service-name jasonlam604-website --containers file://containers.json --public-endpoint file://public-endpoint.json
+                                </code>
+                                </p>
+
+                               <h4 class="header-text">Sourc Code</h4>
+                                <p>
+                                    <ul>
+                                        <li><a href="https://github.com/jasonlam604/jasonlam604_website" target="_blank">Hosted on GitHub</a></li>
+                                    </ul>
+                                <p>
+
+                               <h4 class="header-text">References</h4>
+                                <p>
+                                    <ul>
+                                        <li><a href="https://opensource.com/article/19/5/python-3-default-mac" target="_blank">Python v3.x.x installed using pyenv</a></li>
+                                    </ul>
+                                <p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
